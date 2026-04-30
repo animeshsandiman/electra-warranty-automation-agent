@@ -1,18 +1,92 @@
-# Salesforce DX Project: Next Steps
+# 🚗 Electra Cars Intelligent Warranty Automation Agent
 
-Now that you’ve created a Salesforce DX project, what’s next? Here are some documentation resources to get you started.
+## 📌 Overview
 
-## How Do You Plan to Deploy Your Changes?
+This project is a multi-channel warranty automation system built using Salesforce, Slack, and WhatsApp.
 
-Do you want to deploy a set of changes, or create a self-contained application? Choose a [development model](https://developer.salesforce.com/tools/vscode/en/user-guide/development-models).
+It enables dealers to submit claims via WhatsApp, automates warranty validation using Salesforce Flow, and allows OEMs to approve or reject claims directly from Slack.
 
-## Configure Your Salesforce DX Project
+---
 
-The `sfdx-project.json` file contains useful configuration information for your project. See [Salesforce DX Project Configuration](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_ws_config.htm) in the _Salesforce DX Developer Guide_ for details about this file.
+## 🚀 Features
 
-## Read All About It
+### 📱 WhatsApp Claim Submission
 
-- [Salesforce Extensions Documentation](https://developer.salesforce.com/tools/vscode/)
-- [Salesforce CLI Setup Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_intro.htm)
-- [Salesforce DX Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_intro.htm)
-- [Salesforce CLI Command Reference](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference.htm)
+* Conversational agent collects:
+
+  * VIN
+  * Part Name
+  * Issue Description
+  * Invoice Date
+  * Vehicle Type
+  * Dealer Name
+
+### 📄 Invoice Validation
+
+* Upload PDF invoice
+* System validates dealer input
+
+### 🔔 Slack Notifications
+
+* New claim alerts sent to OEM Slack channel
+
+### ⚙️ Automated Decision Logic
+
+* < 1 year → Auto Approved
+* 1–2 years → Under Review (Slack approval)
+* > 2 years → Auto Rejected
+
+### 🔘 Slack Approval Buttons
+
+* Approve/Reject directly from Slack
+* Duplicate action prevention
+
+### 🔄 Real-time Notifications
+
+* Dealers receive updates via WhatsApp
+
+---
+
+## 🛠️ Tech Stack
+
+* Salesforce Apex (REST APIs, Queueable)
+* Salesforce Flow
+* Agentforce (AI agent)
+* Slack API
+* WhatsApp Business API
+* SOQL
+* Experience Cloud
+
+---
+
+## 🎥 Demo Video
+
+[Paste your video link here]
+
+---
+
+## 💻 Setup Instructions
+
+1. Deploy Apex classes in Salesforce
+2. Activate Flows
+3. Configure Slack:
+
+   * Slash Command
+   * Interactivity
+4. Configure WhatsApp API
+5. Ensure public endpoint via Experience Cloud
+
+---
+
+## 🔮 Future Improvements
+
+* AI-based fraud detection
+* Analytics dashboard
+* Multi-language support
+* Role-based approvals
+
+---
+
+## 📜 License
+
+This project is part of a hackathon submission and is for demonstration purposes.
