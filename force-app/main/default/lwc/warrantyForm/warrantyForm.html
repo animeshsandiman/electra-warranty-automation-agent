@@ -1,0 +1,26 @@
+<template>
+    <lightning-card title="Warranty Claim Form">
+        <div class="slds-p-around_medium">
+
+            <lightning-input label="VIN" onchange={handleVin}></lightning-input>
+
+            <lightning-input label="Vehicle Type" onchange={handleVehicleType}></lightning-input>
+
+            <lightning-combobox label="Part Name" value={partName} options={partOptions} onchange={handlePartName}>
+            </lightning-combobox>
+
+            <lightning-textarea label="Description" onchange={handleDescription}></lightning-textarea>
+
+            <lightning-input label="Dealer Name" onchange={handleDealerName}></lightning-input>
+
+            <lightning-file-upload label="Upload Vehicle Part Image" name="fileUploader"
+                            accept=".jpg,.png,.jpeg" record-id={recordId} onuploadfinished={handleUploadFinished}>
+            </lightning-file-upload>
+
+            <br/>
+
+            <lightning-button label="Submit Claim" variant="brand" onclick={handleSubmit}></lightning-button>
+
+        </div>
+    </lightning-card>
+</template>
