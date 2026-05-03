@@ -1,5 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Warranty_Claim_Alert</name>
+        <label>Warranty Claim Alert</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>slackPostMessage</actionName>
+        <actionType>slackPostMessage</actionType>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>slackAppIdForToken</name>
+            <value>
+                <stringValue>A03269G3DNE</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>slackWorkspaceIdForToken</name>
+            <value>
+                <stringValue>T0ASMAE49DW</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>userIdForToken</name>
+        </inputParameters>
+        <inputParameters>
+            <name>slackConversationId</name>
+            <value>
+                <elementReference>SlackChannelId</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>slackBotName</name>
+        </inputParameters>
+        <inputParameters>
+            <name>slackMessage</name>
+            <value>
+                <elementReference>SlackMessageTemplate</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>viewApiName</name>
+        </inputParameters>
+        <inputParameters>
+            <name>recordId</name>
+        </inputParameters>
+        <inputParameters>
+            <name>slackMessageTimestamp</name>
+        </inputParameters>
+        <nameSegment>slackPostMessage</nameSegment>
+        <offset>0</offset>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </actionCalls>
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
@@ -14,7 +65,17 @@
                 <elementReference>Get_RecordId.Name</elementReference>
             </value>
         </assignmentItems>
+        <connector>
+            <targetReference>Warranty_Claim_Alert</targetReference>
+        </connector>
     </assignments>
+    <constants>
+        <name>SlackChannelId</name>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>C0ASMAEGFC0</stringValue>
+        </value>
+    </constants>
     <environments>Default</environments>
     <interviewLabel>Warrient {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Warranty record input flow</label>
@@ -58,12 +119,6 @@
             <field>Dealer_Name__c</field>
             <value>
                 <elementReference>DealerName</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Invoice_Date__c</field>
-            <value>
-                <elementReference>InvoiceDate</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -146,6 +201,17 @@
             </value>
         </inputAssignments>
     </subflows>
+    <textTemplates>
+        <name>SlackMessageTemplate</name>
+        <isViewedAsPlainText>true</isViewedAsPlainText>
+        <text>🚗 *New Warranty Claim Alert*
+• Claim Number: {!Get_RecordId.Name}
+• VIN: {!Get_RecordId.VIN__c}
+• Vehicle Type: {!Get_RecordId.Vehicle_Type__c}
+• Part: {!Get_RecordId.Part_Name__c}
+• Issue Description: {!Get_RecordId.Issue_Description__c}
+• Dealer: {!Get_RecordId.Dealer_Name__c}</text>
+    </textTemplates>
     <variables>
         <name>ClaimNumber</name>
         <dataType>String</dataType>
@@ -163,13 +229,6 @@
     <variables>
         <name>DealerName</name>
         <dataType>String</dataType>
-        <isCollection>false</isCollection>
-        <isInput>true</isInput>
-        <isOutput>false</isOutput>
-    </variables>
-    <variables>
-        <name>InvoiceDate</name>
-        <dataType>Date</dataType>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>false</isOutput>

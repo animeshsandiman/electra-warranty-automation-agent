@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <actionCalls>
-        <name>Manual_Review</name>
-        <label>Manual Review</label>
+        <name>Buttons_for_Review</name>
+        <label>Buttons for Review</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <actionName>SlackFlowAction</actionName>
         <actionType>apex</actionType>
+        <connector>
+            <targetReference>Review_In_Progress</targetReference>
+        </connector>
         <flowTransactionModel>Automatic</flowTransactionModel>
         <inputParameters>
             <name>messages</name>
@@ -16,45 +19,6 @@
         </inputParameters>
         <nameSegment>SlackFlowAction</nameSegment>
         <offset>0</offset>
-    </actionCalls>
-    <actionCalls>
-        <name>Warranty_Claim_Alert</name>
-        <label>Warranty Claim Alert</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <actionName>slackPostMessage</actionName>
-        <actionType>slackPostMessage</actionType>
-        <connector>
-            <targetReference>Check_Warranty_Eligibility</targetReference>
-        </connector>
-        <flowTransactionModel>Automatic</flowTransactionModel>
-        <inputParameters>
-            <name>slackAppIdForToken</name>
-            <value>
-                <stringValue>A03269G3DNE</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>slackWorkspaceIdForToken</name>
-            <value>
-                <stringValue>T0ASMAE49DW</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>slackConversationId</name>
-            <value>
-                <elementReference>SlackChannelId</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>slackMessage</name>
-            <value>
-                <elementReference>SlackMessageTemplate</elementReference>
-            </value>
-        </inputParameters>
-        <nameSegment>slackPostMessage</nameSegment>
-        <offset>0</offset>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
     </actionCalls>
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
@@ -128,7 +92,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Review_In_Progress</targetReference>
+                <targetReference>Buttons_for_Review</targetReference>
             </connector>
             <label>Send For Review</label>
         </rules>
@@ -137,7 +101,7 @@
     <formulas>
         <name>ExtendedEndDate_2years</name>
         <dataType>Date</dataType>
-        <expression>{!$Record.Invoice_Date__c} + 730</expression>
+        <expression>{!$Record.Extracted_Date_Converted__c} + 730</expression>
     </formulas>
     <formulas>
         <name>Today_date</name>
@@ -147,7 +111,7 @@
     <formulas>
         <name>WarrantyEndDate_1year</name>
         <dataType>Date</dataType>
-        <expression>{!$Record.Invoice_Date__c} + 365</expression>
+        <expression>{!$Record.Extracted_Date_Converted__c} + 365</expression>
     </formulas>
     <interviewLabel>Automatic {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Automatic Slack Notification</label>
@@ -201,9 +165,6 @@
         <label>Review In Progress</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <connector>
-            <targetReference>Manual_Review</targetReference>
-        </connector>
         <inputAssignments>
             <field>Status__c</field>
             <value>
@@ -215,11 +176,20 @@
     <start>
         <locationX>0</locationX>
         <locationY>0</locationY>
+        <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Extract_Invoice_Date__c</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
         <object>Warranty_Claim_Intake__c</object>
-        <recordTriggerType>Create</recordTriggerType>
+        <recordTriggerType>Update</recordTriggerType>
         <scheduledPaths>
             <connector>
-                <targetReference>Warranty_Claim_Alert</targetReference>
+                <targetReference>Check_Warranty_Eligibility</targetReference>
             </connector>
             <pathType>AsyncAfterCommit</pathType>
         </scheduledPaths>

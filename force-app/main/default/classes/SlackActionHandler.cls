@@ -9,6 +9,7 @@ global without sharing class SlackActionHandler {
         try {
             RestRequest req = RestContext.request;
 
+            // ✅ Get payload correctly
             String payloadJson;
 
             if(req.params != null && req.params.containsKey('payload')) {
@@ -20,7 +21,7 @@ global without sharing class SlackActionHandler {
             System.debug('Payload JSON: ' + payloadJson);
 
             if(String.isBlank(payloadJson)){
-                res.statusCode = 200;
+                respond(res, 'No payload received ❌');
                 return;
             }
 
@@ -28,19 +29,31 @@ global without sharing class SlackActionHandler {
                 (Map<String, Object>) JSON.deserializeUntyped(payloadJson);
 
             List<Object> actions = (List<Object>) payload.get('actions');
-            Map<String, Object> actionObj = (Map<String, Object>) actions[0];
 
+            if(actions == null || actions.isEmpty()){
+                respond(res, 'No actions found ❌');
+                return;
+            }
+
+            Map<String, Object> actionObj = (Map<String, Object>) actions[0];
             String value = (String) actionObj.get('value');
 
-            // 🔹 Extract recordId + action
+            System.debug('Button value: ' + value);
+
             List<String> parts = value.split('\\|');
+
+            if(parts.size() < 2){
+                respond(res, 'Invalid button data ❌');
+                return;
+            }
 
             String recordId = parts[0];
             String action = parts[1];
 
-            // 🔹 Get response_url
+            // 🔹 Get response_url (for updating Slack message)
             String responseUrl = (String) payload.get('response_url');
 
+            // 🔹 Fetch record
             Warranty_Claim_Intake__c claim = [
                 SELECT Id, Name, Status__c
                 FROM Warranty_Claim_Intake__c
@@ -48,20 +61,20 @@ global without sharing class SlackActionHandler {
                 LIMIT 1
             ];
 
-            // 🔴 Prevent multiple clicks
+            // 🚫 Prevent multiple clicks
             if(claim.Status__c == 'Approved' || claim.Status__c == 'Rejected'){
 
-                sendSlackUpdate(responseUrl,
-                    '⚠️ Claim ' + claim.Name + ' is already ' + claim.Status__c);
+                String alreadyMsg = '⚠️ Claim ' + claim.Name + ' is already ' + claim.Status__c;
 
-                respond(res, 'Already processed');
+                sendSlackUpdate(responseUrl, alreadyMsg);
+                respond(res, alreadyMsg);
                 return;
             }
 
             // 🔹 Update status
             if(action == 'APPROVE'){
                 claim.Status__c = 'Approved';
-            }
+            } 
             else if(action == 'REJECT'){
                 claim.Status__c = 'Rejected';
             }
@@ -70,24 +83,24 @@ global without sharing class SlackActionHandler {
 
             System.debug('✅ Record updated');
 
-            // 🔥 Update Slack message (REMOVE BUTTONS)
+            // 🔥 Final message (buttons removed)
             String finalMessage =
                 '✅ Claim ' + claim.Name + ' has been *' + claim.Status__c + '*';
 
             sendSlackUpdate(responseUrl, finalMessage);
 
-            // 🔹 Immediate response
+            // 🔹 Immediate response to Slack
             respond(res, 'Action completed');
 
         } catch(Exception e) {
 
             System.debug('ERROR: ' + e.getMessage());
 
-            respond(res, 'Error occurred');
+            respond(res, 'Error processing request ❌');
         }
     }
 
-    // 🔹 Method to update Slack message
+    // 🔹 Update Slack message (remove buttons)
     private static void sendSlackUpdate(String responseUrl, String message){
 
         if(String.isBlank(responseUrl)) return;
@@ -110,11 +123,12 @@ global without sharing class SlackActionHandler {
         }
     }
 
-    private static void respond(RestResponse res, String msg){
+    // 🔹 Standard Slack response
+    private static void respond(RestResponse res, String message){
         res.statusCode = 200;
         res.addHeader('Content-Type', 'application/json');
         res.responseBody = Blob.valueOf(
-            '{"response_type":"ephemeral","text":"' + msg + '"}'
+            '{"response_type":"ephemeral","text":"' + message + '"}'
         );
     }
 }

@@ -11,7 +11,7 @@
         <inputParameters>
             <name>messageDefinitionName</name>
             <value>
-                <stringValue>Status_Update_on_your_claim</stringValue>
+                <stringValue>Approved_with_claim_number</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
@@ -59,6 +59,124 @@
         <offset>0</offset>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </actionCalls>
+    <actionCalls>
+        <name>Send_InReview_message</name>
+        <label>Send InReview message</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>sendConversationMessages</actionName>
+        <actionType>sendConversationMessages</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>messageDefinitionName</name>
+            <value>
+                <stringValue>InReview_message_with_claim_number</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>messagingDefinitionInputParameters</name>
+            <value>
+                <apexValue>[
+  {
+    &quot;name&quot;: &quot;claim_number&quot;,
+    &quot;textValue&quot;: &quot;{!$Record.Name}&quot;
+  }
+]</apexValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>requestType</name>
+            <value>
+                <stringValue>SendNotificationMessages</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>isEnforceMessagingChannelConsent</name>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>channelConsentType</name>
+            <value>
+                <stringValue>MessagingEndUser</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>allowedSessionStatus</name>
+            <value>
+                <stringValue>Any</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>messagingEndUserIds</name>
+            <value>
+                <elementReference>xarMessagingUserUnderReview</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>sendConversationMessages</nameSegment>
+        <offset>0</offset>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </actionCalls>
+    <actionCalls>
+        <name>Send_Rejected_Message</name>
+        <label>Send Rejected Message</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>sendConversationMessages</actionName>
+        <actionType>sendConversationMessages</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>messageDefinitionName</name>
+            <value>
+                <stringValue>Rejected_with_claim_number</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>messagingDefinitionInputParameters</name>
+            <value>
+                <apexValue>[
+  {
+    &quot;name&quot;: &quot;claim_number&quot;,
+    &quot;textValue&quot;: &quot;{!$Record.Name}&quot;
+  }
+]</apexValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>requestType</name>
+            <value>
+                <stringValue>SendNotificationMessages</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>isEnforceMessagingChannelConsent</name>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>channelConsentType</name>
+            <value>
+                <stringValue>MessagingEndUser</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>allowedSessionStatus</name>
+            <value>
+                <stringValue>Any</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>messagingEndUserIds</name>
+            <value>
+                <elementReference>varMessagingUserReject</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>sendConversationMessages</nameSegment>
+        <offset>0</offset>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </actionCalls>
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
@@ -77,12 +195,47 @@
             <targetReference>Send_Approved_Messages</targetReference>
         </connector>
     </assignments>
+    <assignments>
+        <name>Add_Messaging_User_Rejected</name>
+        <label>Add Messaging User Rejected</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>varMessagingUserReject</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Get_the_Messaging_user_for_Rejected.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Send_Rejected_Message</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Add_messaging_user_under_review</name>
+        <label>Add messaging user under review</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>xarMessagingUserUnderReview</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Get_Records_3.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Send_InReview_message</targetReference>
+        </connector>
+    </assignments>
     <decisions>
         <name>Status_Changes</name>
         <label>Status Changes</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <defaultConnector>
+            <targetReference>Get_Records_3</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>In  Review</defaultConnectorLabel>
         <rules>
             <name>Approved</name>
             <conditionLogic>and</conditionLogic>
@@ -108,6 +261,9 @@
                     <stringValue>Rejected</stringValue>
                 </rightValue>
             </conditions>
+            <connector>
+                <targetReference>Get_the_Messaging_user_for_Rejected</targetReference>
+            </connector>
             <label>Rejected</label>
         </rules>
     </decisions>
@@ -134,6 +290,34 @@
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <recordLookups>
+        <name>Get_Records_3</name>
+        <label>Get the Messaging user under review</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Add_messaging_user_under_review</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>MessagingPlatformKey</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Customer_Phone__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>MessagingChannelId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>0Mjak000001caUvCAI</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>MessagingEndUser</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
         <name>Get_The_Messaging_User</name>
         <label>Get The Messaging User for Approved</label>
         <locationX>0</locationX>
@@ -148,6 +332,41 @@
             <operator>EqualTo</operator>
             <value>
                 <elementReference>$Record.Customer_Phone__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>MessagingChannelId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>0Mjak000001caUvCAI</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>MessagingEndUser</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_the_Messaging_user_for_Rejected</name>
+        <label>Get the Messaging user for Rejected</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Add_Messaging_User_Rejected</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>MessagingPlatformKey</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Customer_Phone__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>MessagingChannelId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>0Mjak000001caUvCAI</stringValue>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
@@ -181,11 +400,25 @@
         <isOutput>false</isOutput>
     </variables>
     <variables>
+        <name>varMessagingUserReject</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
         <name>varMessagingUsers</name>
         <dataType>SObject</dataType>
         <isCollection>true</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <objectType>MessagingEndUser</objectType>
+    </variables>
+    <variables>
+        <name>xarMessagingUserUnderReview</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
     </variables>
 </Flow>
