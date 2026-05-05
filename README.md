@@ -61,7 +61,7 @@ It enables dealers to submit claims via WhatsApp, automates warranty validation 
 
 ## 🎥 Demo Video
 
-[Paste your video link here]
+[https://drive.google.com/file/d/1TPCTofZy4410xnAN1Jrx5RBTde8unn4w/view?usp=drivesdk]
 
 ---
 
